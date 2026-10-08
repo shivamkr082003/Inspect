@@ -1,0 +1,103 @@
+{
+  "project_name": "InspectAI - Buying House QC & Inspection Intelligence",
+  "app_type": "saas_app",
+  "context": "Internal B2B tool for buying house / sourcing QC inspection teams. Automatically turns product & packaging photos into multi-sheet Excel (.xlsx) inspection reports.",
+  "theme_strategy": {
+    "default_mode": "dark",
+    "theme_toggle": true,
+    "aesthetic_style": "Tactical Quality Control & Technical Precision (Industrial Obsidian + Amber Unresolved Highlights + Emerald Pass Indicators)"
+  },
+  "typography": {
+    "headings": {
+      "font_family": "Outfit, Satoshi, sans-serif",
+      "h1": "text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight",
+      "h2": "text-xl sm:text-2xl lg:text-3xl font-semibold tracking-tight",
+      "h3": "text-lg sm:text-xl font-medium",
+      "rule": "Never use Inter for headings. Keep hierarchy gaps within 2 Tailwind size steps."
+    },
+    "body": {
+      "font_family": "Inter, IBM Plex Sans, sans-serif",
+      "regular": "text-sm text-slate-300 leading-relaxed",
+      "small": "text-xs text-slate-400"
+    },
+    "monospace": {
+      "font_family": "JetBrains Mono, Source Code Pro, monospace",
+      "usage": "Used for Barcodes, SKUs, Measurements, AI Confidence Scores, Data Tables, and Unresolved Badges"
+    }
+  },
+  "colors": {
+    "background_dark": "#0B0F17",
+    "surface_dark": "#111827",
+    "surface_card": "#1E293B",
+    "border_dark": "rgba(255, 255, 255, 0.1)",
+    "primary": "#3B82F6",
+    "primary_hover": "#2563EB",
+    "status_verified_pass": "#10B981",
+    "status_defect_fail": "#EF4444",
+    "status_unresolved_not_visible": "#F59E0B",
+    "status_processing_ai": "#06B6D4",
+    "tinted_neutrals": "Always use cool slate-tinted dark surfaces, never flat #000000"
+  },
+  "layout_and_spacing": {
+    "grid_mode": "MODE B: High Density Dashboard & Inspection Deck Grid",
+    "container_padding": "p-4 sm:p-6 lg:p-8",
+    "border_padding": "Containers with borders MUST have minimum internal padding p-5 to prevent text edge collision",
+    "sections": [
+      {
+        "name": "Team Header & Navigation",
+        "key_elements": "Brand logo, Active Inspection Batch selector, Inspector Team profile badge, Light/Dark toggle, Quick History trigger",
+        "rule": "Header must have glassmorphism background (backdrop-blur-md bg-slate-900/80) and z-50 stack depth."
+      },
+      {
+        "name": "Batch Photo Upload Dropzone",
+        "key_elements": "Multi-photo drag-and-drop zone, live file thumbnail carousel/stack, count meter, 'Generate Report' high-contrast action CTA",
+        "rule": "Supports dragging 10-50+ photos at once. Shows instant preview thumbnail gallery."
+      },
+      {
+        "name": "Live AI Processing Pipeline",
+        "key_elements": "Multi-stage progress bar: 1. Uploading -> 2. AI Visual Grouping -> 3. OCR Label & Barcode Scan -> 4. Defect Detection -> 5. Excel Template Compilation -> 6. Done",
+        "rule": "Shows live percentage progress, current photo being processed, and real-time step status icons."
+      },
+      {
+        "name": "Product Analysis & Excel Workbook Workbench",
+        "key_elements": "Tabbed per-product view (Sheet 1: Product A, Sheet 2: Product B...), Extracted Label Text, SKU, Barcode, Unit Counts, Defect Summaries, 'Not Visible / Unresolved' deliberate badges, and Excel Live Table Preview",
+        "rule": "Unresolved/unproven fields must be visually distinguished with Amber 'Not Visible in Photos' pill badges, maintaining strictly truthful QC standards."
+      },
+      {
+        "name": "Traceable Original Photo Gallery",
+        "key_elements": "Thumbnail drawer per product, full-screen lightbox modal with visual defect bounding overlays, zoom pan controls, photo timestamp & upload hash",
+        "rule": "Preserves original photos linked directly to each generated Excel sheet row."
+      },
+      {
+        "name": "Inspection History & Excel Download Center",
+        "key_elements": "Historical reports table, total units inspected, defect ratio, one-click .xlsx download button, search & date filter",
+        "rule": "Single click finishes and downloads ready-to-use formatted multi-sheet .xlsx file."
+      }
+    ]
+  },
+  "image_urls": {
+    "factory_lab_qc": "https://images.unsplash.com/photo-1748000970909-845f4aa144d2?crop=entropy&cs=srgb&fm=jpg&q=85",
+    "textile_machine": "https://images.unsplash.com/photo-1599726159910-f4378e03f9bb?crop=entropy&cs=srgb&fm=jpg&q=85",
+    "lab_inspector": "https://images.unsplash.com/photo-1669707040737-a6237bc0ae50?crop=entropy&cs=srgb&fm=jpg&q=85",
+    "fabric_yarn_roll": "https://images.unsplash.com/photo-1612685179841-3965cf0c3f70?crop=entropy&cs=srgb&fm=jpg&q=85",
+    "garment_stitching": "https://images.unsplash.com/photo-1673201229733-69d19c5c4a87?crop=entropy&cs=srgb&fm=jpg&q=85",
+    "factory_floor_workers": "https://images.unsplash.com/photo-1741176505800-caaa3a52631a?crop=entropy&cs=srgb&fm=jpg&q=85"
+  },
+  "component_rules": {
+    "file_type": "JavaScript (.js / .jsx)",
+    "testing_attribute": "CRITICAL: Every button, link, input, tab, card, modal, and key data metric MUST include data-testid (kebab-case, role-based). Example: data-testid=\"generate-report-button\", data-testid=\"product-tab-product-1\", data-testid=\"download-excel-button\", data-testid=\"photo-upload-dropzone\"",
+    "toasts": "Use Sonner component from src/components/ui/sonner.jsx for upload feedback and export completion notifications",
+    "shadcn_usage": "Use Shadcn Tabs, Dialog, DropdownMenu, Progress, Badge, ScrollArea, Table, Alert, Accordion with customized dark slate borders and glowing status highlights",
+    "no_transparent_headers": "Header and overlays must have solid/semi-solid background with backdrop blur so content beneath never bleeds unreadably"
+  },
+  "instructions_to_main_agent": [
+    "Build a complete, functional React application in frontend code with Javascript (.js/.jsx files).",
+    "Implement Team Login flow with mock login credentials option for easy review.",
+    "Implement drag-and-drop batch upload accepting multiple product/packaging images simultaneously.",
+    "Implement simulated real-time AI processing progress bar showing photo grouping, OCR scanning, defect identification, and Excel generation.",
+    "Structure the inspection report into distinct sheets/tabs per identified product design.",
+    "Clearly highlight unresolved/unproven fields with 'Not Visible in Photos' amber warnings as requested in the specification.",
+    "Provide live Excel-styled table preview and functional .xlsx file export (using SheetJS / xlsx package or Blob download) containing separate worksheets for each product.",
+    "Ensure all key UI elements have clear data-testid attributes for automated testing."
+  ]
+}
