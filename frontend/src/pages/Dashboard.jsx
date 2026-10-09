@@ -56,6 +56,7 @@ export default function Dashboard() {
   const [view, setView] = useState("upload"); // upload | processing | results
   const [selected, setSelected] = useState(new Set());
   const [packing, setPacking] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const inputRef = useRef();
   const pollRef = useRef();
 
@@ -141,7 +142,8 @@ export default function Dashboard() {
   };
 
   const generate = async () => {
-    if (!files.length) return;
+    if (!files.length || uploading) return;
+    setUploading(true);
     const form = new FormData();
     files.forEach((f) => form.append("files", f));
     try {
@@ -155,6 +157,8 @@ export default function Dashboard() {
       clearAll();
     } catch (e) {
       toast.error(e?.response?.data?.detail || "Upload failed");
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -215,6 +219,7 @@ export default function Dashboard() {
               removeFile={removeFile}
               clearAll={clearAll}
               generate={generate}
+              uploading={uploading}
               inputRef={inputRef}
               count={files.length}
             />
@@ -333,7 +338,7 @@ function StatusPill({ status }) {
   );
 }
 
-function UploadView({ previews, dragging, setDragging, addFiles, removeFile, clearAll, generate, inputRef, count }) {
+function UploadView({ previews, dragging, setDragging, addFiles, removeFile, clearAll, generate, uploading, inputRef, count }) {
   return (
     <div className="animate-rise">
       <h1 className="font-display text-3xl sm:text-4xl font-bold tracking-tight">
@@ -406,11 +411,19 @@ function UploadView({ previews, dragging, setDragging, addFiles, removeFile, cle
           </div>
           <Button
             onClick={generate}
-            disabled={!count}
+            disabled={!count || uploading}
             data-testid="generate-report-button"
             className="mt-6 h-12 px-6 bg-blue-500 hover:bg-blue-600 text-white font-medium glow-primary"
           >
-            <Sparkles className="h-4 w-4 mr-2" /> Generate report
+            {uploading ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Uploading {count} photo(s)…
+              </>
+            ) : (
+              <>
+                <Sparkles className="h-4 w-4 mr-2" /> Generate report
+              </>
+            )}
           </Button>
         </div>
       )}

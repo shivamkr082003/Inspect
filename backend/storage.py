@@ -13,7 +13,28 @@ APP_NAME = "inspectai"
 LOCAL_MODE = (os.environ.get("STORAGE_BACKEND") or "").strip().lower() == "local"
 LOCAL_STORAGE_DIR = Path(os.environ.get("LOCAL_STORAGE_DIR") or Path(__file__).parent / "local_storage").resolve()
 
+# STORAGE_BACKEND=s3 keeps objects in any S3-compatible bucket (AWS S3, Cloudflare R2, ...).
+S3_MODE = (os.environ.get("STORAGE_BACKEND") or "").strip().lower() == "s3"
+S3_BUCKET = (os.environ.get("S3_BUCKET") or "").strip()
+
 _storage_key = None
+_s3_client = None
+
+
+def _s3():
+    global _s3_client
+    if _s3_client is None:
+        import boto3
+        from botocore.config import Config
+        _s3_client = boto3.client(
+            "s3",
+            endpoint_url=(os.environ.get("S3_ENDPOINT_URL") or "").strip() or None,
+            aws_access_key_id=os.environ.get("S3_ACCESS_KEY_ID"),
+            aws_secret_access_key=os.environ.get("S3_SECRET_ACCESS_KEY"),
+            region_name=(os.environ.get("S3_REGION") or "auto").strip(),
+            config=Config(retries={"max_attempts": 5, "mode": "standard"}),
+        )
+    return _s3_client
 
 
 def _local_path(path: str) -> Path:
@@ -29,6 +50,11 @@ def init_storage(force: bool = False):
     if LOCAL_MODE:
         LOCAL_STORAGE_DIR.mkdir(parents=True, exist_ok=True)
         return str(LOCAL_STORAGE_DIR)
+    if S3_MODE:
+        if not S3_BUCKET:
+            raise RuntimeError("STORAGE_BACKEND=s3 requires S3_BUCKET")
+        _s3().head_bucket(Bucket=S3_BUCKET)
+        return S3_BUCKET
     if _storage_key and not force:
         return _storage_key
     resp = requests.post(f"{STORAGE_URL}/init", json={"emergent_key": EMERGENT_KEY}, timeout=30)
@@ -65,6 +91,9 @@ def put_object(path: str, data: bytes, content_type: str) -> dict:
         full.parent.mkdir(parents=True, exist_ok=True)
         full.write_bytes(data)
         return {"path": path, "size": len(data), "content_type": content_type}
+    if S3_MODE:
+        _s3().put_object(Bucket=S3_BUCKET, Key=path, Body=data, ContentType=content_type)
+        return {"path": path, "size": len(data), "content_type": content_type}
     resp = _request_with_retry("PUT", path, data=data, timeout=180,
                                _headers={"Content-Type": content_type})
     return resp.json()
@@ -76,5 +105,8 @@ def get_object(path: str) -> tuple[bytes, str]:
         if not full.is_file():
             raise FileNotFoundError(f"object not found in local storage: {path}")
         return full.read_bytes(), mimetypes.guess_type(full.name)[0] or "application/octet-stream"
+    if S3_MODE:
+        obj = _s3().get_object(Bucket=S3_BUCKET, Key=path)
+        return obj["Body"].read(), obj.get("ContentType") or "application/octet-stream"
     resp = _request_with_retry("GET", path, timeout=120)
     return resp.content, resp.headers.get("Content-Type", "application/octet-stream")

@@ -472,6 +472,12 @@ async def startup():
         logger.error(f"storage init failed: {e}")
     await db.users.create_index("email", unique=True)
     await db.inspections.create_index("id", unique=True)
+    # Processing runs as in-process tasks, so anything still in flight died with the previous process.
+    await db.inspections.update_many(
+        {"status": {"$in": ["queued", "analyzing", "generating"]}},
+        {"$set": {"status": "error", "progress": 100,
+                  "error": "Server restarted while this report was processing. Please upload the photos again."}},
+    )
     admin_email = os.environ.get("ADMIN_EMAIL", "inspector@indigo.com").lower()
     admin_pw = os.environ.get("ADMIN_PASSWORD", "inspect123")
     existing = await db.users.find_one({"email": admin_email})
